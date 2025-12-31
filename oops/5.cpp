@@ -53,8 +53,9 @@ int main()
         }
         
         cout<<"\n - - - Employee Details ---\n";
-        for(int i=0;i<n;i++)
+        for(int i=0;i<n;i++) {
               e[i].print();
+        }
               
-              return 0;
+        return 0; 
 }
