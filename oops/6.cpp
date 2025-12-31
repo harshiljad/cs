@@ -56,8 +56,9 @@ int main()
                s[i].calculate();
          }
          cout<<"\n----Student Details ---\n";
-         for(int i=0;i<n;i++)
+         for(int i=0;i<n;i++) {
                 s[i].print();
+         }
                 
-                return 0;
+         return 0;
 }
