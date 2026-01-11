@@ -16,57 +16,40 @@ struct istack{
     int top;
 };
 
-void initcstack(struct cstack* S){
-    S->top = -1;
+void initcstack(struct cstack* s){
+    s->top = -1;
 }
 
-void pushc(struct cstack* S ,char val){
-    if(S->top < MAX-1)
-        S->st[++S->top] = val;
+void pushc(struct cstack* s, char val){
+    if(s->top < MAX-1)
+        s->st[++s->top] = val;
 }
 
-char popc(struct cstack* S){
-    if(S->top == -1)
+char popc(struct cstack* s){
+    if(s->top == -1)
         return '\0';
-    return S->st[S->top--];
+    return s->st[s->top--];
 }
 
-char peekc(struct cstack* S){
-    if(S->top == -1)
+char peekc(struct cstack* s){
+    if(s->top == -1)
         return '\0';
-    return S->st[S->top];
+    return s->st[s->top];
 }
 
-void initistack(struct istack* S){
-    S->top = -1;
+void initistack(struct istack* s){
+    s->top = -1;
 }
 
-void pushi(struct istack* S ,int val){
-    if(S->top < MAX-1)
-        S->st[++S->top] = val;
+void pushi(struct istack* s, int val){
+    if(s->top < MAX-1)
+        s->st[++s->top] = val;
 }
 
-int popi(struct istack* S){
-    if(S->top == -1)
+int popi(struct istack* s){
+    if(s->top == -1)
         return 0;
-    return S->st[S->top--];
-}
-
-void reverse(char str[]){
-    int i, j;
-    char temp;
-    for(i = 0, j = strlen(str)-1; i < j; i++, j--){
-        temp = str[i];
-        str[i] = str[j];
-        str[j] = temp;
-    }
-}
-
-void swapBrackets(char str[]){
-    for(int i = 0; str[i] != '\0'; i++){
-        if(str[i] == '(') str[i] = ')';
-        else if(str[i] == ')') str[i] = '(';
-    }
+    return s->st[s->top--];
 }
 
 int precedence(char op){
@@ -80,19 +63,14 @@ int precedence(char op){
     return 0;
 }
 
-void infixtoprefix(char infix[], char prefix[]){
-    char temp[MAX], postfix[MAX];
+void infixtopostfix(char infix[], char postfix[]){
     struct cstack s;
     initcstack(&s);
-
-    strcpy(temp, infix);
-    reverse(temp);
-    swapBrackets(temp);
 
     int i = 0, k = 0;
     char ch;
 
-    while((ch = temp[i++]) != '\0'){
+    while((ch = infix[i++]) != '\0'){
         if(isalnum(ch)){
             postfix[k++] = ch;
         }
@@ -105,7 +83,7 @@ void infixtoprefix(char infix[], char prefix[]){
             popc(&s);
         }
         else{
-            while(precedence(peekc(&s)) > precedence(ch))
+            while(precedence(peekc(&s)) >= precedence(ch))
                 postfix[k++] = popc(&s);
             pushc(&s, ch);
         }
@@ -115,8 +93,6 @@ void infixtoprefix(char infix[], char prefix[]){
         postfix[k++] = popc(&s);
 
     postfix[k] = '\0';
-    reverse(postfix);
-    strcpy(prefix, postfix);
 }
 
 int applyoperator(int a, int b, char op){
@@ -130,33 +106,32 @@ int applyoperator(int a, int b, char op){
     return 0;
 }
 
-int evaluatePrefix(char prefix[]){
+int evaluatePostfix(char postfix[]){
     struct istack s;
     initistack(&s);
 
-    for(int i = strlen(prefix)-1; i >= 0; i--){
-        char ch = prefix[i];
+    for(int i = 0; postfix[i] != '\0'; i++){
+        char ch = postfix[i];
 
         if(isdigit(ch)){
             pushi(&s, ch - '0');
         }
         else{
-            int a = popi(&s);
             int b = popi(&s);
-            int result = applyoperator(a, b, ch);
-            pushi(&s, result);
+            int a = popi(&s);
+            pushi(&s, applyoperator(a, b, ch));
         }
     }
     return popi(&s);
 }
 
 int main(){
-    char infix[MAX], prefix[MAX];
-    int choice, result;
+    char infix[MAX], postfix[MAX];
+    int choice;
 
     while(1){
-        printf("\n1.Infix to Prefix");
-        printf("\n2.Evaluate Prefix");
+        printf("\n1.Infix to Postfix");
+        printf("\n2.Evaluate Postfix");
         printf("\n3.Exit");
         printf("\nEnter choice: ");
         scanf("%d", &choice);
@@ -165,13 +140,12 @@ int main(){
             case 1:
                 printf("Enter Infix Expression: ");
                 scanf("%s", infix);
-                infixtoprefix(infix, prefix);
-                printf("Prefix Expression: %s\n", prefix);
+                infixtopostfix(infix, postfix);
+                printf("Postfix Expression: %s\n", postfix);
                 break;
 
             case 2:
-                result = evaluatePrefix(prefix);
-                printf("Evaluation Result: %d\n", result);
+                printf("Evaluation Result: %d\n", evaluatePostfix(postfix));
                 break;
 
             case 3:
